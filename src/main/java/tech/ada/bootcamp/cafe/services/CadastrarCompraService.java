@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tech.ada.bootcamp.cafe.entidades.*;
 import tech.ada.bootcamp.cafe.exceptions.NotFoundException;
+import tech.ada.bootcamp.cafe.mapper.CompraToRealizarCompraResponseMapper;
 import tech.ada.bootcamp.cafe.payloads.ItemCompraRequest;
-import tech.ada.bootcamp.cafe.payloads.ItemCompraResponse;
 import tech.ada.bootcamp.cafe.payloads.RealizarCompraRequest;
 import tech.ada.bootcamp.cafe.payloads.RealizarCompraResponse;
 import tech.ada.bootcamp.cafe.repository.*;
@@ -13,7 +13,6 @@ import tech.ada.bootcamp.cafe.repository.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -42,44 +41,9 @@ public class CadastrarCompraService {
         itensCompra.forEach(itemCompra -> itemCompra.setCompra(compraSaved));
         List<ItemCompra> itemComprasSaved = itemCompraRepository.saveAll(itensCompra);
         realizarPagamentoService.execute(compraSaved, realizarCompraRequest.getFormaPagamento());
-        return formatarResposta(compraSaved, itemComprasSaved);
+        return CompraToRealizarCompraResponseMapper.formatarResposta(compraSaved, itemComprasSaved);
     }
 
-    private RealizarCompraResponse formatarResposta(Compra compraSaved, List<ItemCompra> itemComprasSaved) {
-        RealizarCompraResponse realizarCompraResponse = new RealizarCompraResponse();
-        realizarCompraResponse.setDataCompra(compraSaved.getDataCompra().toLocalDate());
-        realizarCompraResponse.setTotal(compraSaved.getValorTotal());
-        realizarCompraResponse.setItems(formatarRespostaItens(itemComprasSaved));
-        realizarCompraResponse.setStatus(compraSaved.getStatus().getLabel());
-        return realizarCompraResponse;
-    }
-
-    private RealizarCompraResponse formatarResposta(Compra compraSaved) {
-        List<ItemCompra> itemCompras = itemCompraRepository.findByCompraId(compraSaved.getId());
-        return formatarResposta(compraSaved, itemCompras);
-    }
-
-    private List<ItemCompraResponse> formatarRespostaItens(List<ItemCompra> itemComprasSaved) {
-        return itemComprasSaved.stream().map(this::formatarRespostaItem).toList();
-    }
-
-    private ItemCompraResponse formatarRespostaItem(ItemCompra itemCompra) {
-        ItemCompraResponse itemCompraResponse = new ItemCompraResponse();
-        itemCompraResponse.setValor(itemCompra.getTotal());
-        itemCompraResponse.setQuantidade(itemCompra.getQuantidade());
-        String identificador;
-        boolean isCombo = false;
-        if (Objects.nonNull(itemCompra.getCombo())) {
-            isCombo = true;
-            identificador = itemCompra.getCombo().getDescricao();
-        } else {
-            identificador = itemCompra.getItem().getDescricao();
-
-        }
-        itemCompraResponse.setIdentificadorItem(identificador);
-        itemCompraResponse.setCombo(isCombo);
-        return itemCompraResponse;
-    }
 
     private List<ItemCompra> converterItensCompra(List<ItemCompraRequest> items, Compra compra, double desconto) {
         List<ItemCompra> itemsCompra = new ArrayList<>();
@@ -114,9 +78,4 @@ public class CadastrarCompraService {
         return itemsCompra;
     }
 
-
-    public List<RealizarCompraResponse> listarCompras() {
-        return compraRepository.findAll()
-                .stream().map(this::formatarResposta).toList();
-    }
 }

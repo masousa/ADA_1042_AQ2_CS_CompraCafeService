@@ -13,4 +13,5 @@ public class PagamentoRequest {
     private double valor;
     private double desconto;
     private String identificadorUsuario;
+    private String identificadorCompra;
 }

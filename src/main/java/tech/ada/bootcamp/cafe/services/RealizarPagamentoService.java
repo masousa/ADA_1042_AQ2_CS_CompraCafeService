@@ -34,6 +34,7 @@ public class RealizarPagamentoService {
                 : compra.getCliente().getNome());
         pagamentoRequest.setIdentificadorUsuario(compra.getCliente().getIdentificador());
         pagamentoRequest.setNumeroCartao(formaPagamentoRequest.getNumeroCartao());
+        pagamentoRequest.setIdentificadorCompra(compra.getIdentificador());
 
         Mono<PagamentoResponse> pagamentoResponseMono = pagamentoClient.realizarPagamento(pagamentoRequest);
 
