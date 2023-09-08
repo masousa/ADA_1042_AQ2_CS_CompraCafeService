@@ -25,6 +25,7 @@ public class CadastrarCompraService {
     private final ComboRepository comboRepository;
     private final ItemRepository itemRepository;
     private final ItemCompraRepository itemCompraRepository;
+    private final RealizarPagamentoService realizarPagamentoService;
 
     public RealizarCompraResponse cadastrarCompra(RealizarCompraRequest realizarCompraRequest) {
         Compra compra = new Compra();
@@ -40,7 +41,7 @@ public class CadastrarCompraService {
         Compra compraSaved = compraRepository.save(compra);
         itensCompra.forEach(itemCompra -> itemCompra.setCompra(compraSaved));
         List<ItemCompra> itemComprasSaved = itemCompraRepository.saveAll(itensCompra);
-
+        realizarPagamentoService.execute(compraSaved, realizarCompraRequest.getFormaPagamento());
         return formatarResposta(compraSaved, itemComprasSaved);
     }
 

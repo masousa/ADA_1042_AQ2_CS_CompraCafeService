@@ -31,3 +31,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/changelog-local.xml
+
+negocio:
+  pagamento:
+    url: http://localhost:9081
