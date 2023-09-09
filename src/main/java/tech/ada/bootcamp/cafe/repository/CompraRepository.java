@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, Long> {
+
     Optional<Compra> findByIdentificador(String identificadorCompra);
 }
